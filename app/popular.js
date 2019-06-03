@@ -35,19 +35,30 @@ export default class Popular extends React.Component{
 
         this.state = {
             selectedLang : 'All',
-            details: null,
+            repos: {},
             err: null
         }
     }
 
     updateState(lang) {
-        this.setState({selectedLang: lang, data: null, err: null});
+        this.setState({selectedLang: lang, err: null});
 
-        fetchData(lang).then(data => this.setState({ data })).catch(err => this.setState({ err }));
+        if(!this.state.repos[lang]) {
+            fetchData(lang).then(data => {
+                this.setState(({ repos }) => ({
+                    repos: {
+                      ...repos,
+                      [lang]: data
+                    }
+                  }))
+            }).catch(err => this.setState({ err }));
+        }
     }
 
     isLoading() {
-        return this.state.data == null && this.state.err === null;
+        let { repos, selectedLang, err } = this.state;
+
+        return !repos[selectedLang] && err === null;
     }
 
     componentDidMount() {
@@ -55,18 +66,20 @@ export default class Popular extends React.Component{
     }
 
     render() {
+        let { repos, selectedLang, err } = this.state;
+        console.log('render now');
         return (
             <React.Fragment>
                 <LanguageNav 
-                    selectedLang={this.state.selectedLang} 
+                    selectedLang={selectedLang} 
                     updateState={this.updateState.bind(this)}>
                 </LanguageNav>
 
-                { this.state.err && <p>Error fetching data</p> }
+                { err && <p>Error fetching data</p> }
 
                 { this.isLoading() && <p> Loading... </p> }
 
-                { this.state.data && <pre> {JSON.stringify(this.state.data, null, 2)}</pre> }
+                { repos[selectedLang] && <pre> {JSON.stringify(repos[selectedLang], null, 2)}</pre> }
             </React.Fragment>
         );
     }
