@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { fetchData } from '../utils/api';
+import { FaStar, FaCodeBranch, FaUser, FaExclamationTriangle } from 'react-icons/fa';
 
 function LanguageNav({selectedLang, updateState}) {
     const langs = ['All', 'Javascript', 'Ruby', 'Python', 'Java'];
@@ -27,6 +28,52 @@ LanguageNav.propTypes = {
     selectedLang: PropTypes.string.isRequired,
     updateState: PropTypes.func.isRequired
 };
+
+function GridComponent(repos) {
+    return ( 
+        <ul>
+            {
+                repos.data.map((data, index) => {
+                    const { name, owner, html_url, stargazers_count, forks, open_issues } = data;
+                    const { login, avatar_url } = owner
+
+                    return (
+                        <li key={html_url}>
+                            <h4>
+                                #{index + 1}
+                            </h4>
+                            <img src={avatar_url}></img>
+                            <h2>
+                                <a href={`https://github.com/${login}`}>{login}</a>
+                            </h2>
+                            <ul>
+                                <li>
+                                    <FaUser color='rgb(255, 191, 116)' size={22} />
+                                    <a href={`https://github.com/${login}`}>
+                                    {login}
+                                    </a>
+                                </li>
+                                <li>
+                                    <FaStar color='rgb(255, 215, 0)' size={22} ></FaStar>
+                                    {stargazers_count} stars
+                                </li>
+                                <li>
+                                    <FaCodeBranch color='rgb(129, 195, 245)' size={22}/>
+                                    {forks} forks
+                                </li>
+                                <li>
+                                    <FaExclamationTriangle color='rgb(241, 138, 147)' size={22} />
+                                    {open_issues} open issues
+                                </li>
+                            </ul>
+                        </li>
+                    );
+                })
+            }
+        </ul>
+    );
+
+}
 
 export default class Popular extends React.Component{
 
@@ -79,7 +126,7 @@ export default class Popular extends React.Component{
 
                 { this.isLoading() && <p> Loading... </p> }
 
-                { repos[selectedLang] && <pre> {JSON.stringify(repos[selectedLang], null, 2)}</pre> }
+                { repos[selectedLang] && <GridComponent data={repos[selectedLang]}/> }
             </React.Fragment>
         );
     }
